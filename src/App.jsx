@@ -3,6 +3,8 @@ import { useMemberInfo } from "./hooks/useMemberInfo";
 import { shortenAddress } from "./utils/format";
 import AdminDashboard from "./components/AdminDashboard";
 import MemberDashboard from "./components/MemberDashboard";
+import AuditorDashboard from "./components/AuditorDashboard";
+import LandingPage from "./components/LandingPage";
 import "./App.css";
 
 function App() {
@@ -23,54 +25,7 @@ function App() {
   if (!account) {
     return (
       <div className="app">
-        <div className="landing">
-          <header className="landing-nav">
-            <span className="landing-logo">AgroVault</span>
-          </header>
-
-          <section className="hero">
-            <span className="hero-badge">Live on Sepolia Testnet</span>
-            <h1>Save, borrow, and trade produce — all on-chain.</h1>
-            <p className="hero-sub">
-              AgroVault is a blockchain cooperative for farmers and buyers.
-              Deposit savings, unlock loans against your balance, and trade
-              produce directly — with every transaction transparent and
-              verifiable.
-            </p>
-            <button onClick={connectWallet} disabled={connecting}>
-              {connecting ? "Connecting..." : "Connect Wallet"}
-            </button>
-            {error && <p className="error">{error}</p>}
-          </section>
-
-          <section className="feature-grid">
-            <div className="feature-card">
-              <h3>Save & Borrow</h3>
-              <p>
-                Deposit USDC into the cooperative pool. Build your balance
-                and unlock loans scaled to your savings and trust level.
-              </p>
-            </div>
-            <div className="feature-card">
-              <h3>Sell Produce</h3>
-              <p>
-                Farmers list approved produce batches. Buyers purchase
-                directly — funds settle automatically through escrow.
-              </p>
-            </div>
-            <div className="feature-card">
-              <h3>Transparent by Design</h3>
-              <p>
-                Every deposit, loan, and sale lives on-chain. No hidden
-                books — just a public, auditable ledger.
-              </p>
-            </div>
-          </section>
-
-          <footer className="landing-footer">
-            <p>Requires MetaMask and Sepolia testnet ETH.</p>
-          </footer>
-        </div>
+        <LandingPage connectWallet={connectWallet} connecting={connecting} error={error} />
       </div>
     );
   }
@@ -125,9 +80,12 @@ function App() {
           onActionComplete={refresh}
         />
       ) : (
-        <div className="connect-screen">
-          <p>Dashboard for your role ({memberInfo?.roleName || "unregistered"}) coming soon.</p>
-        </div>
+        <AuditorDashboard
+          cooperative={cooperative}
+          marketplace={marketplace}
+          provider={provider}
+          account={account}
+        />
       )}
     </div>
   );
