@@ -3,7 +3,7 @@
 A blockchain-based cooperative platform connecting farmers and buyers, built on the Sepolia testnet. AgroVault lets members save USDC, borrow against their savings, and trade produce directly — with every transaction transparent and verifiable on-chain.
 
 🔗 **Live App:** [https://agrovault-eight.vercel.app](https://agrovault-eight.vercel.app)
-📜 **Smart Contracts Repo:** *(link here once available)*
+📜 **Smart Contracts Repo:** [https://github.com/johnny279/agrovault-contracts](https://github.com/johnny279/agrovault-contracts)
 
 ## Features
 
