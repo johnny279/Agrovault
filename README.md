@@ -1,16 +1,33 @@
-# React + Vite
+# AgroVault
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A blockchain-based cooperative platform connecting farmers and buyers, built on the Sepolia testnet. AgroVault lets members save USDC, borrow against their savings, and trade produce directly — with every transaction transparent and verifiable on-chain.
 
-Currently, two official plugins are available:
+🔗 **Live App:** [https://agrovault-eight.vercel.app](https://agrovault-eight.vercel.app)
+📜 **Smart Contracts Repo:** [https://github.com/johnny279/agrovault-contracts](https://github.com/johnny279/agrovault-contracts)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Savings & Lending** — Deposit USDC into the cooperative pool, unlock loans scaled to your balance and trust tier
+- **Produce Marketplace** — Farmers list produce batches; buyers purchase directly through on-chain escrow
+- **Role-Based Dashboards** — Separate views for Admins, Farmers, Buyers, and read-only Auditors
+- **On-Chain Activity History** — Every deposit, loan, and sale is verifiable directly from contract events
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Requirements
 
-## Expanding the ESLint configuration
+- [MetaMask](https://metamask.io/) browser extension
+- Sepolia testnet ETH ([faucet](https://sepoliafaucet.com/))
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech Stack
+
+- **Frontend:** React (Vite), Ethers.js
+- **Smart Contracts:** Solidity, Hardhat
+- **Network:** Ethereum Sepolia Testnet
+
+## Running Locally
+
+```bash
+npm install
+npm run dev
+```
+
+Then open `http://localhost:5173` and connect your MetaMask wallet.
