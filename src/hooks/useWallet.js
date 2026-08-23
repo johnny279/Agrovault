@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ethers } from "ethers";
 import { COOPERATIVE_ADDRESS, MARKETPLACE_ADDRESS, USDC_ADDRESS, SEPOLIA_CHAIN_ID } from "../config";
 import CooperativeABI from "../contracts/Cooperative.json";
@@ -15,11 +15,35 @@ export function useWallet() {
   const [chainId, setChainId] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
+  const [discoveredWallets, setDiscoveredWallets] = useState([]);
 
-  const connectWallet = useCallback(async () => {
+  const activeRawProviderRef = useRef(null);
+
+  // EIP-6963: listen for every installed wallet extension announcing itself
+  useEffect(() => {
+    function handleAnnouncement(event) {
+      const { info, provider: injectedProvider } = event.detail;
+      setDiscoveredWallets((prev) => {
+        if (prev.some((w) => w.info.uuid === info.uuid)) return prev;
+        return [...prev, { info, provider: injectedProvider }];
+      });
+    }
+
+    window.addEventListener("eip6963:announceProvider", handleAnnouncement);
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+    return () => {
+      window.removeEventListener("eip6963:announceProvider", handleAnnouncement);
+    };
+  }, []);
+
+  const connectWallet = useCallback(async (injectedProvider) => {
     setError(null);
 
-    if (!window.ethereum) {
+    // Fall back to window.ethereum for wallets that don't support EIP-6963 yet
+    const targetProvider = injectedProvider || window.ethereum;
+
+    if (!targetProvider) {
       setError("No wallet found. Please install MetaMask.");
       return;
     }
@@ -27,7 +51,7 @@ export function useWallet() {
     setConnecting(true);
 
     try {
-      const browserProvider = new ethers.BrowserProvider(window.ethereum);
+      const browserProvider = new ethers.BrowserProvider(targetProvider);
       const accounts = await browserProvider.send("eth_requestAccounts", []);
       const network = await browserProvider.getNetwork();
       const currentSigner = await browserProvider.getSigner();
@@ -50,6 +74,8 @@ export function useWallet() {
         currentSigner
       );
 
+      activeRawProviderRef.current = targetProvider;
+
       setProvider(browserProvider);
       setSigner(currentSigner);
       setAccount(accounts[0]);
@@ -66,6 +92,7 @@ export function useWallet() {
   }, []);
 
   const disconnectWallet = useCallback(() => {
+    activeRawProviderRef.current = null;
     setAccount(null);
     setProvider(null);
     setSigner(null);
@@ -75,15 +102,16 @@ export function useWallet() {
     setChainId(null);
   }, []);
 
-  // Listen for account or network changes in MetaMask
+  // Listen for account or network changes on whichever wallet is actually connected
   useEffect(() => {
-    if (!window.ethereum) return;
+    const rawProvider = activeRawProviderRef.current;
+    if (!rawProvider || !rawProvider.on) return;
 
     const handleAccountsChanged = (accounts) => {
       if (accounts.length === 0) {
         disconnectWallet();
       } else {
-        connectWallet();
+        connectWallet(rawProvider);
       }
     };
 
@@ -91,14 +119,14 @@ export function useWallet() {
       window.location.reload();
     };
 
-    window.ethereum.on("accountsChanged", handleAccountsChanged);
-    window.ethereum.on("chainChanged", handleChainChanged);
+    rawProvider.on("accountsChanged", handleAccountsChanged);
+    rawProvider.on("chainChanged", handleChainChanged);
 
     return () => {
-      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
-      window.ethereum.removeListener("chainChanged", handleChainChanged);
+      rawProvider.removeListener?.("accountsChanged", handleAccountsChanged);
+      rawProvider.removeListener?.("chainChanged", handleChainChanged);
     };
-  }, [connectWallet, disconnectWallet]);
+  }, [account, connectWallet, disconnectWallet]);
 
   const isWrongNetwork = chainId !== null && chainId !== SEPOLIA_CHAIN_ID;
 
@@ -115,5 +143,6 @@ export function useWallet() {
     error,
     connectWallet,
     disconnectWallet,
+    discoveredWallets,
   };
 }

@@ -129,7 +129,7 @@ function AdminDashboard({ cooperative, marketplace, provider, account, isSuperAd
       {isSuperAdmin && (
         <section className="card card--full">
           <h3>Super Admin: Manage Admins</h3>
-          <p className="hint">Only you (Super Admin) can add or remove admins.</p>
+          <p className="hint">Only you (Super Admin) can add, remove, or transfer this role.</p>
           <AdminManagement cooperative={cooperative} runAction={runAction} busy={busy} />
         </section>
       )}
@@ -165,6 +165,21 @@ function AdminDashboard({ cooperative, marketplace, provider, account, isSuperAd
 function AdminManagement({ cooperative, runAction, busy }) {
   const [newAdmin, setNewAdmin] = useState("");
   const [removeAddr, setRemoveAddr] = useState("");
+  const [transferAddr, setTransferAddr] = useState("");
+  const [confirmTransfer, setConfirmTransfer] = useState(false);
+
+  function handleTransferClick() {
+    if (!confirmTransfer) {
+      setConfirmTransfer(true);
+      return;
+    }
+    runAction(
+      () => cooperative.transferSuperAdmin(transferAddr),
+      "Super Admin role transferred. You are no longer the Super Admin."
+    );
+    setTransferAddr("");
+    setConfirmTransfer(false);
+  }
 
   return (
     <>
@@ -184,6 +199,7 @@ function AdminManagement({ cooperative, runAction, busy }) {
           Add Admin
         </button>
       </div>
+
       <div className="sub-section">
         <input
           type="text"
@@ -198,6 +214,31 @@ function AdminManagement({ cooperative, runAction, busy }) {
           }
         >
           Remove Admin
+        </button>
+      </div>
+
+      <div className="sub-section">
+        <input
+          type="text"
+          placeholder="New Super Admin address (must already be an Admin)"
+          value={transferAddr}
+          onChange={(e) => {
+            setTransferAddr(e.target.value);
+            setConfirmTransfer(false);
+          }}
+        />
+        {confirmTransfer && (
+          <p className="hint" style={{ color: "var(--danger)" }}>
+            This will permanently transfer Super Admin rights to this address.
+            You will lose the ability to add/remove admins or transfer this
+            role again. Click again to confirm.
+          </p>
+        )}
+        <button
+          disabled={busy || !transferAddr}
+          onClick={handleTransferClick}
+        >
+          {confirmTransfer ? "Confirm Transfer" : "Transfer Super Admin"}
         </button>
       </div>
     </>

@@ -8,24 +8,30 @@ import LandingPage from "./components/LandingPage";
 import "./App.css";
 
 function App() {
-  const {
-    account,
-    connecting,
-    error,
-    isWrongNetwork,
-    connectWallet,
-    cooperative,
-    marketplace,
-    usdcToken,
-    provider,
-  } = useWallet();
+ const {
+  account,
+  connecting,
+  error,
+  isWrongNetwork,
+  connectWallet,
+  cooperative,
+  marketplace,
+  usdcToken,
+  provider,
+  discoveredWallets,
+} = useWallet();
 
   const { memberInfo, loading, isSuperAdmin, refresh } = useMemberInfo(cooperative, account);
 
   if (!account) {
     return (
       <div className="app">
-        <LandingPage connectWallet={connectWallet} connecting={connecting} error={error} />
+        <LandingPage
+  connectWallet={connectWallet}
+  connecting={connecting}
+  error={error}
+  discoveredWallets={discoveredWallets}
+/>
       </div>
     );
   }

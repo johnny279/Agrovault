@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import HeroEmblem from "./HeroEmblem";
+import WalletPicker from "./WalletPicker";
 
 function useScrollReveal() {
   const containerRef = useRef(null);
@@ -24,15 +25,31 @@ function useScrollReveal() {
   return containerRef;
 }
 
-function LandingPage({ connectWallet, connecting, error }) {
+function LandingPage({ connectWallet, connecting, error, discoveredWallets }) {
   const containerRef = useScrollReveal();
+  const [showPicker, setShowPicker] = useState(false);
+
+  function handleConnectClick() {
+    if (discoveredWallets.length === 0) {
+      connectWallet(); // falls back to window.ethereum, or shows "not found" error
+    } else if (discoveredWallets.length === 1) {
+      connectWallet(discoveredWallets[0].provider);
+    } else {
+      setShowPicker(true);
+    }
+  }
+
+  function handleWalletSelect(provider) {
+    setShowPicker(false);
+    connectWallet(provider);
+  }
 
   return (
     <div className="landing" ref={containerRef}>
       <header className="landing-nav">
         <span className="landing-logo">AgroVault</span>
         <div className="nav-connect-wrap">
-          <button onClick={connectWallet} disabled={connecting}>
+          <button onClick={handleConnectClick} disabled={connecting}>
             {connecting ? "Connecting..." : "Connect Wallet"}
           </button>
           {error && <div className="nav-error-dropdown">{error}</div>}
@@ -49,7 +66,7 @@ function LandingPage({ connectWallet, connecting, error }) {
             produce directly — with every transaction transparent and
             verifiable.
           </p>
-          <button onClick={connectWallet} disabled={connecting} className="hero-cta">
+          <button onClick={handleConnectClick} disabled={connecting} className="hero-cta">
             {connecting ? "Connecting..." : "Connect Wallet to Get Started"}
           </button>
         </div>
@@ -124,6 +141,14 @@ function LandingPage({ connectWallet, connecting, error }) {
         </div>
         <p>Requires MetaMask and Sepolia testnet ETH.</p>
       </footer>
+
+      {showPicker && (
+        <WalletPicker
+          wallets={discoveredWallets}
+          onSelect={handleWalletSelect}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   );
 }
