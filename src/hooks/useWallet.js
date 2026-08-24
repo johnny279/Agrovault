@@ -1,137 +1,75 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import { useAppKitProvider, useAppKitAccount } from "@reown/appkit/react";
 import { COOPERATIVE_ADDRESS, MARKETPLACE_ADDRESS, USDC_ADDRESS, SEPOLIA_CHAIN_ID } from "../config";
 import CooperativeABI from "../contracts/Cooperative.json";
 import ProduceMarketplaceABI from "../contracts/ProduceMarketplace.json";
 import MockUSDCABI from "../contracts/MockUSDC.json";
 
 export function useWallet() {
-  const [account, setAccount] = useState(null);
+  // 1. Pull connection state and address directly from AppKit
+  const { address, isConnected } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider("eip155");
+
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [cooperative, setCooperative] = useState(null);
   const [marketplace, setMarketplace] = useState(null);
   const [usdcToken, setUsdcToken] = useState(null);
   const [chainId, setChainId] = useState(null);
-  const [connecting, setConnecting] = useState(false);
-  const [error, setError] = useState(null);
-  const [discoveredWallets, setDiscoveredWallets] = useState([]);
 
-  const activeRawProviderRef = useRef(null);
-
-  // EIP-6963: listen for every installed wallet extension announcing itself
+  // 2. Initialize Ethers contracts whenever AppKit connects a wallet
   useEffect(() => {
-    function handleAnnouncement(event) {
-      const { info, provider: injectedProvider } = event.detail;
-      setDiscoveredWallets((prev) => {
-        if (prev.some((w) => w.info.uuid === info.uuid)) return prev;
-        return [...prev, { info, provider: injectedProvider }];
-      });
-    }
+    async function initContracts() {
+      if (isConnected && walletProvider) {
+        try {
+          const browserProvider = new ethers.BrowserProvider(walletProvider);
+          const currentSigner = await browserProvider.getSigner();
+          const network = await browserProvider.getNetwork();
 
-    window.addEventListener("eip6963:announceProvider", handleAnnouncement);
-    window.dispatchEvent(new Event("eip6963:requestProvider"));
+          const cooperativeContract = new ethers.Contract(
+            COOPERATIVE_ADDRESS,
+            CooperativeABI.abi,
+            currentSigner
+          );
+          const marketplaceContract = new ethers.Contract(
+            MARKETPLACE_ADDRESS,
+            ProduceMarketplaceABI.abi,
+            currentSigner
+          );
+          const usdcContract = new ethers.Contract(
+            USDC_ADDRESS,
+            MockUSDCABI.abi,
+            currentSigner
+          );
 
-    return () => {
-      window.removeEventListener("eip6963:announceProvider", handleAnnouncement);
-    };
-  }, []);
-
-  const connectWallet = useCallback(async (injectedProvider) => {
-    setError(null);
-
-    // Fall back to window.ethereum for wallets that don't support EIP-6963 yet
-    const targetProvider = injectedProvider || window.ethereum;
-
-    if (!targetProvider) {
-      setError("No wallet found. Please install MetaMask.");
-      return;
-    }
-
-    setConnecting(true);
-
-    try {
-      const browserProvider = new ethers.BrowserProvider(targetProvider);
-      const accounts = await browserProvider.send("eth_requestAccounts", []);
-      const network = await browserProvider.getNetwork();
-      const currentSigner = await browserProvider.getSigner();
-
-      const cooperativeContract = new ethers.Contract(
-        COOPERATIVE_ADDRESS,
-        CooperativeABI.abi,
-        currentSigner
-      );
-
-      const marketplaceContract = new ethers.Contract(
-        MARKETPLACE_ADDRESS,
-        ProduceMarketplaceABI.abi,
-        currentSigner
-      );
-
-      const usdcContract = new ethers.Contract(
-        USDC_ADDRESS,
-        MockUSDCABI.abi,
-        currentSigner
-      );
-
-      activeRawProviderRef.current = targetProvider;
-
-      setProvider(browserProvider);
-      setSigner(currentSigner);
-      setAccount(accounts[0]);
-      setChainId(Number(network.chainId));
-      setCooperative(cooperativeContract);
-      setMarketplace(marketplaceContract);
-      setUsdcToken(usdcContract);
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Failed to connect wallet.");
-    } finally {
-      setConnecting(false);
-    }
-  }, []);
-
-  const disconnectWallet = useCallback(() => {
-    activeRawProviderRef.current = null;
-    setAccount(null);
-    setProvider(null);
-    setSigner(null);
-    setCooperative(null);
-    setMarketplace(null);
-    setUsdcToken(null);
-    setChainId(null);
-  }, []);
-
-  // Listen for account or network changes on whichever wallet is actually connected
-  useEffect(() => {
-    const rawProvider = activeRawProviderRef.current;
-    if (!rawProvider || !rawProvider.on) return;
-
-    const handleAccountsChanged = (accounts) => {
-      if (accounts.length === 0) {
-        disconnectWallet();
+          setProvider(browserProvider);
+          setSigner(currentSigner);
+          setChainId(Number(network.chainId));
+          setCooperative(cooperativeContract);
+          setMarketplace(marketplaceContract);
+          setUsdcToken(usdcContract);
+        } catch (error) {
+          console.error("Failed to initialize contracts:", error);
+        }
       } else {
-        connectWallet(rawProvider);
+        // Clear state if user disconnects via the AppKit modal
+        setProvider(null);
+        setSigner(null);
+        setChainId(null);
+        setCooperative(null);
+        setMarketplace(null);
+        setUsdcToken(null);
       }
-    };
+    }
 
-    const handleChainChanged = () => {
-      window.location.reload();
-    };
-
-    rawProvider.on("accountsChanged", handleAccountsChanged);
-    rawProvider.on("chainChanged", handleChainChanged);
-
-    return () => {
-      rawProvider.removeListener?.("accountsChanged", handleAccountsChanged);
-      rawProvider.removeListener?.("chainChanged", handleChainChanged);
-    };
-  }, [account, connectWallet, disconnectWallet]);
+    initContracts();
+  }, [isConnected, walletProvider]);
 
   const isWrongNetwork = chainId !== null && chainId !== SEPOLIA_CHAIN_ID;
 
   return {
-    account,
+    account: address,
     provider,
     signer,
     cooperative,
@@ -139,10 +77,13 @@ export function useWallet() {
     usdcToken,
     chainId,
     isWrongNetwork,
-    connecting,
-    error,
-    connectWallet,
-    disconnectWallet,
-    discoveredWallets,
+    
+    // We export these as dummies so your App.jsx doesn't break.
+    // The <appkit-button /> in your LandingPage handles all of this automatically now!
+    connecting: false,
+    error: null,
+    connectWallet: () => {}, 
+    disconnectWallet: () => {},
+    discoveredWallets: [],
   };
 }

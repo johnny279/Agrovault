@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reown/appkit-adapter-ethers": "^1.8.23",
     "@walletconnect/ethereum-provider": "^2.23.10",
     "ethers": "^6.17.0",
     "react": "^19.2.8",

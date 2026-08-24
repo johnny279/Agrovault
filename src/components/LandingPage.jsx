@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useAppKit } from "@reown/appkit/react";
 import HeroEmblem from "./HeroEmblem";
-import WalletPicker from "./WalletPicker";
+// We can completely remove WalletPicker!
 
 function useScrollReveal() {
   const containerRef = useRef(null);
@@ -25,34 +26,22 @@ function useScrollReveal() {
   return containerRef;
 }
 
-function LandingPage({ connectWallet, connecting, error, discoveredWallets }) {
+// We don't need to pass the manual connection props anymore
+function LandingPage() {
   const containerRef = useScrollReveal();
-  const [showPicker, setShowPicker] = useState(false);
-
-  function handleConnectClick() {
-    if (discoveredWallets.length === 0) {
-      connectWallet(); // falls back to window.ethereum, or shows "not found" error
-    } else if (discoveredWallets.length === 1) {
-      connectWallet(discoveredWallets[0].provider);
-    } else {
-      setShowPicker(true);
-    }
-  }
-
-  function handleWalletSelect(provider) {
-    setShowPicker(false);
-    connectWallet(provider);
-  }
+  
+  // Pull the open function from AppKit
+  const { open } = useAppKit();
 
   return (
     <div className="landing" ref={containerRef}>
       <header className="landing-nav">
         <span className="landing-logo">AgroVault</span>
         <div className="nav-connect-wrap">
-          <button onClick={handleConnectClick} disabled={connecting}>
-            {connecting ? "Connecting..." : "Connect Wallet"}
+          {/* Attach open() to your existing button */}
+          <button onClick={() => open()}>
+            Connect Wallet
           </button>
-          {error && <div className="nav-error-dropdown">{error}</div>}
         </div>
       </header>
 
@@ -66,8 +55,9 @@ function LandingPage({ connectWallet, connecting, error, discoveredWallets }) {
             produce directly — with every transaction transparent and
             verifiable.
           </p>
-          <button onClick={handleConnectClick} disabled={connecting} className="hero-cta">
-            {connecting ? "Connecting..." : "Connect Wallet to Get Started"}
+          {/* Keep your custom hero-cta styling, just trigger the modal */}
+          <button onClick={() => open()} className="hero-cta">
+            Connect Wallet to Get Started
           </button>
         </div>
         <div className="hero-visual">
@@ -139,16 +129,8 @@ function LandingPage({ connectWallet, connecting, error, discoveredWallets }) {
             Smart Contracts
           </a>
         </div>
-        <p>Requires MetaMask and Sepolia testnet ETH.</p>
+        <p>Supports browser wallets and mobile apps via WalletConnect.</p>
       </footer>
-
-      {showPicker && (
-        <WalletPicker
-          wallets={discoveredWallets}
-          onSelect={handleWalletSelect}
-          onClose={() => setShowPicker(false)}
-        />
-      )}
     </div>
   );
 }
