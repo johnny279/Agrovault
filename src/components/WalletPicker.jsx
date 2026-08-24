@@ -1,4 +1,4 @@
-function WalletPicker({ wallets, onSelect, onClose }) {
+function WalletPicker({ wallets, onSelect, onSelectWalletConnect, onClose }) {
   return (
     <div className="wallet-picker-overlay" onClick={onClose}>
       <div className="wallet-picker" onClick={(e) => e.stopPropagation()}>
@@ -14,6 +14,10 @@ function WalletPicker({ wallets, onSelect, onClose }) {
               <span>{wallet.info.name}</span>
             </button>
           ))}
+          <button className="wallet-picker-item" onClick={onSelectWalletConnect}>
+            <span className="wc-icon" aria-hidden="true">🔗</span>
+            <span>WalletConnect (mobile app / QR code)</span>
+          </button>
         </div>
       </div>
     </div>
