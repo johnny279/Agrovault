@@ -18,6 +18,8 @@ function App() {
   marketplace,
   usdcToken,
   provider,
+  disconnectWallet,
+  switchToSepolia,
   discoveredWallets,
 } = useWallet();
 
@@ -41,7 +43,10 @@ function App() {
       <div className="app">
         <div className="connect-screen">
           <h1>Wrong Network</h1>
-          <p>Please switch MetaMask to the Sepolia testnet.</p>
+          <p>Please switch your connected wallet to the Sepolia testnet.</p>
+          {error && <p className="error-text">{error}</p>}
+          <button onClick={switchToSepolia}>Switch to Sepolia</button>
+          <button onClick={disconnectWallet} className="secondary-action">Disconnect</button>
         </div>
       </div>
     );
@@ -63,6 +68,7 @@ function App() {
         <h1>AgroVault</h1>
         <div className="account-info">
           {shortenAddress(account)} · {memberInfo?.roleName || "Unknown"}
+          <button onClick={disconnectWallet} className="topbar-disconnect">Disconnect</button>
         </div>
       </header>
 

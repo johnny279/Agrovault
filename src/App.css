@@ -760,3 +760,24 @@ button:disabled {
   box-shadow: none;
   background: #E8EFE8;
 }
+.error-text {
+  color: var(--danger) !important;
+  font-family: var(--font-mono);
+  max-width: 520px;
+}
+
+.secondary-action {
+  margin-top: 12px;
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.topbar-disconnect {
+  margin-left: 12px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  box-shadow: none;
+}
