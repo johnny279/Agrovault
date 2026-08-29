@@ -65,11 +65,12 @@ function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>AgroVault</h1>
-        <div className="account-info">
-          {shortenAddress(account)} · {memberInfo?.roleName || "Unknown"}
-        </div>
-      </header>
+  <h1>AgroVault</h1>
+  <div className="account-info">
+    {shortenAddress(account)} · {memberInfo?.roleName || "Unknown"}
+    <button onClick={disconnectWallet} className="disconnect-btn">Disconnect</button>
+  </div>
+</header>
 
       {memberInfo?.roleName === "Admin" ? (
         <AdminDashboard
