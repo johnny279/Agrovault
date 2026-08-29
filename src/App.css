@@ -109,18 +109,16 @@ button:disabled {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 22px 40px;
   background: linear-gradient(120deg, #16261C 0%, #2D6A4F 100%);
   box-shadow: 0 2px 20px rgba(22, 38, 28, 0.15);
 }
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 16px;
+.topbar h1 {
+  color: #ffffff;
+  margin: 0;
 }
 
 .account-info {
@@ -129,6 +127,7 @@ button:disabled {
   gap: 10px;
   flex-wrap: nowrap;
   font-size: 0.85rem;
+  color: #ffffff;
 }
 
 .disconnect-btn {
@@ -139,8 +138,8 @@ button:disabled {
   background: rgba(255, 255, 255, 0.15);
   color: white;
   white-space: nowrap;
+  cursor: pointer;
 }
-
 /* ===== Dashboard ===== */
 
 .dashboard {
