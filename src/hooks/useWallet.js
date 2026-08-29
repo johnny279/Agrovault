@@ -46,7 +46,9 @@ useEffect(() => {
 
     try {
       const browserProvider = new ethers.BrowserProvider(wcProvider);
-      const accounts = await browserProvider.send("eth_requestAccounts", []);
+      const accounts = wcProvider.accounts && wcProvider.accounts.length > 0
+  ? wcProvider.accounts
+  : await browserProvider.send("eth_requestAccounts", []);
       const network = await browserProvider.getNetwork();
       const currentSigner = await browserProvider.getSigner();
 
