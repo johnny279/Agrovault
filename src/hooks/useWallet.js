@@ -168,6 +168,44 @@ const connectViaWalletConnect = useCallback(async () => {
     setUsdcToken(null);
     setChainId(null);
   }, []);
+  
+const switchNetwork = useCallback(async () => {
+  const rawProvider = activeRawProviderRef.current;
+  if (!rawProvider) return;
+
+  const sepoliaChainIdHex = "0xaa36a7"; // 11155111 in hex
+
+  try {
+    await rawProvider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: sepoliaChainIdHex }],
+    });
+  } catch (switchError) {
+    // Error code 4902 means the wallet doesn't have Sepolia added yet
+    if (switchError.code === 4902) {
+      try {
+        await rawProvider.request({
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: sepoliaChainIdHex,
+              chainName: "Sepolia",
+              nativeCurrency: { name: "SepoliaETH", symbol: "ETH", decimals: 18 },
+              rpcUrls: ["https://rpc.sepolia.org"],
+              blockExplorerUrls: ["https://sepolia.etherscan.io"],
+            },
+          ],
+        });
+      } catch (addError) {
+        console.error(addError);
+        setError(addError.message || "Failed to add Sepolia network.");
+      }
+    } else {
+      console.error(switchError);
+      setError(switchError.message || "Failed to switch network.");
+    }
+  }
+}, []);
 
   // Listen for account or network changes on whichever wallet is actually connected
   useEffect(() => {

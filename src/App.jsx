@@ -18,6 +18,7 @@ function App() {
   marketplace,
   usdcToken,
   connectViaWalletConnect,
+  switchNetwork,
   provider,
   discoveredWallets,
 } = useWallet();
@@ -39,15 +40,16 @@ function App() {
   }
 
   if (isWrongNetwork) {
-    return (
-      <div className="app">
-        <div className="connect-screen">
-          <h1>Wrong Network</h1>
-          <p>Please switch MetaMask to the Sepolia testnet.</p>
-        </div>
+  return (
+    <div className="app">
+      <div className="connect-screen">
+        <h1>Wrong Network</h1>
+        <p>Please switch to the Sepolia testnet.</p>
+        <button onClick={switchNetwork}>Switch to Sepolia</button>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (loading) {
     return (
