@@ -17,6 +17,7 @@ function App() {
   cooperative,
   marketplace,
   usdcToken,
+  disconnectWallet,
   connectViaWalletConnect,
   switchNetwork,
   provider,
