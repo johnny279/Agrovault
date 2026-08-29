@@ -17,6 +17,7 @@ function App() {
   cooperative,
   marketplace,
   usdcToken,
+  connectViaWalletConnect,
   provider,
   discoveredWallets,
 } = useWallet();
@@ -26,8 +27,9 @@ function App() {
   if (!account) {
     return (
       <div className="app">
-        <LandingPage
+       <LandingPage
   connectWallet={connectWallet}
+  connectViaWalletConnect={connectViaWalletConnect}
   connecting={connecting}
   error={error}
   discoveredWallets={discoveredWallets}

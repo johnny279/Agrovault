@@ -4,6 +4,7 @@ import { COOPERATIVE_ADDRESS, MARKETPLACE_ADDRESS, USDC_ADDRESS, SEPOLIA_CHAIN_I
 import CooperativeABI from "../contracts/Cooperative.json";
 import ProduceMarketplaceABI from "../contracts/ProduceMarketplace.json";
 import MockUSDCABI from "../contracts/MockUSDC.json";
+import { appKit } from "../walletConnectAppKit";
 
 export function useWallet() {
   const [account, setAccount] = useState(null);
@@ -36,6 +37,58 @@ export function useWallet() {
       window.removeEventListener("eip6963:announceProvider", handleAnnouncement);
     };
   }, []);
+
+// Listen for AppKit's WalletConnect session becoming available (mobile / QR flow)
+useEffect(() => {
+  const unsubscribe = appKit.subscribeProviders(async (state) => {
+    const wcProvider = state["eip155"];
+    if (!wcProvider) return;
+
+    try {
+      const browserProvider = new ethers.BrowserProvider(wcProvider);
+      const accounts = await browserProvider.send("eth_requestAccounts", []);
+      const network = await browserProvider.getNetwork();
+      const currentSigner = await browserProvider.getSigner();
+
+      const cooperativeContract = new ethers.Contract(
+        COOPERATIVE_ADDRESS,
+        CooperativeABI.abi,
+        currentSigner
+      );
+
+      const marketplaceContract = new ethers.Contract(
+        MARKETPLACE_ADDRESS,
+        ProduceMarketplaceABI.abi,
+        currentSigner
+      );
+
+      const usdcContract = new ethers.Contract(
+        USDC_ADDRESS,
+        MockUSDCABI.abi,
+        currentSigner
+      );
+
+      activeRawProviderRef.current = wcProvider;
+
+      setProvider(browserProvider);
+      setSigner(currentSigner);
+      setAccount(accounts[0]);
+      setChainId(Number(network.chainId));
+      setCooperative(cooperativeContract);
+      setMarketplace(marketplaceContract);
+      setUsdcToken(usdcContract);
+      setConnecting(false);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Failed to connect via WalletConnect.");
+      setConnecting(false);
+    }
+  });
+
+  return () => {
+    unsubscribe?.();
+  };
+}, []);
 
   const connectWallet = useCallback(async (injectedProvider) => {
     setError(null);
@@ -91,6 +144,18 @@ export function useWallet() {
     }
   }, []);
 
+const connectViaWalletConnect = useCallback(async () => {
+  setError(null);
+  setConnecting(true);
+  try {
+    await appKit.open({ view: "Connect" });
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "Failed to open WalletConnect.");
+    setConnecting(false);
+  }
+}, []);
+
   const disconnectWallet = useCallback(() => {
     activeRawProviderRef.current = null;
     setAccount(null);
@@ -131,18 +196,19 @@ export function useWallet() {
   const isWrongNetwork = chainId !== null && chainId !== SEPOLIA_CHAIN_ID;
 
   return {
-    account,
-    provider,
-    signer,
-    cooperative,
-    marketplace,
-    usdcToken,
-    chainId,
-    isWrongNetwork,
-    connecting,
-    error,
-    connectWallet,
-    disconnectWallet,
-    discoveredWallets,
-  };
+  account,
+  provider,
+  signer,
+  cooperative,
+  marketplace,
+  usdcToken,
+  chainId,
+  isWrongNetwork,
+  connecting,
+  error,
+  connectWallet,
+  connectViaWalletConnect,  
+  disconnectWallet,
+  discoveredWallets,
+};
 }

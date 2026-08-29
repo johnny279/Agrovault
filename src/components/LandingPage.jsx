@@ -25,20 +25,19 @@ function useScrollReveal() {
   return containerRef;
 }
 
-function LandingPage({ connectWallet, connecting, error, discoveredWallets }) {
+function LandingPage({ connectWallet, connectViaWalletConnect, connecting, error, discoveredWallets }) {
   const containerRef = useScrollReveal();
   const [showPicker, setShowPicker] = useState(false);
 
   function handleConnectClick() {
-    if (discoveredWallets.length === 0) {
-      connectWallet(); // falls back to window.ethereum, or shows "not found" error
-    } else if (discoveredWallets.length === 1) {
-      connectWallet(discoveredWallets[0].provider);
-    } else {
-      setShowPicker(true);
-    }
+  if (discoveredWallets.length === 0) {
+    connectViaWalletConnect(); // no extensions found — open WalletConnect modal (mobile/QR)
+  } else if (discoveredWallets.length === 1) {
+    connectWallet(discoveredWallets[0].provider);
+  } else {
+    setShowPicker(true);
   }
-
+}
   function handleWalletSelect(provider) {
     setShowPicker(false);
     connectWallet(provider);
