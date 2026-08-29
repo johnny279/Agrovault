@@ -158,17 +158,23 @@ const connectViaWalletConnect = useCallback(async () => {
   }
 }, []);
 
-  const disconnectWallet = useCallback(() => {
-    activeRawProviderRef.current = null;
-    setAccount(null);
-    setProvider(null);
-    setSigner(null);
-    setCooperative(null);
-    setMarketplace(null);
-    setUsdcToken(null);
-    setChainId(null);
-  }, []);
-  
+ const disconnectWallet = useCallback(async () => {
+  try {
+    await appKit.disconnect();
+  } catch (err) {
+    console.error("AppKit disconnect failed (may not have been connected via WalletConnect):", err);
+  }
+
+  activeRawProviderRef.current = null;
+  setAccount(null);
+  setProvider(null);
+  setSigner(null);
+  setCooperative(null);
+  setMarketplace(null);
+  setUsdcToken(null);
+  setChainId(null);
+}, []);
+
 const switchNetwork = useCallback(async () => {
   const rawProvider = activeRawProviderRef.current;
   if (!rawProvider) return;
