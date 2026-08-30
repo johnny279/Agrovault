@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DashboardTabs from "./DashboardTabs";
 import HistoryTab from "./HistoryTab";
+import RevenueDashboard from "./revenuedashboard";
 
 function AdminDashboard({ cooperative, marketplace, provider, account, isSuperAdmin, onActionComplete }) {
   const [farmerAddress, setFarmerAddress] = useState("");
@@ -142,22 +143,31 @@ function AdminDashboard({ cooperative, marketplace, provider, account, isSuperAd
     <div className="dashboard">
       <h2>Admin Dashboard</h2>
       <DashboardTabs
-        tabs={[
-          { label: "Overview", content: overview },
-          {
-            label: "History",
-            content: (
-              <HistoryTab
-                role="Admin"
-                cooperative={cooperative}
-                marketplace={marketplace}
-                provider={provider}
-                account={account}
-              />
-            ),
-          },
-        ]}
-      />
+  tabs={[
+    { label: "Overview", content: overview },
+    {
+      label: "History",
+      content: (
+        <HistoryTab
+          role="Admin"
+          cooperative={cooperative}
+          marketplace={marketplace}
+          provider={provider}
+          account={account}
+        />
+      ),
+    },
+    {
+      label: "Revenue",
+      content: (
+        <RevenueDashboard
+          marketplace={marketplace}
+          provider={provider}
+        />
+      ),
+    },
+  ]}
+/>
     </div>
   );
 }

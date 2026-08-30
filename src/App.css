@@ -766,3 +766,115 @@ button:disabled {
   box-shadow: none;
   background: #E8EFE8;
 }
+/* ===== Revenue dashboard ===== */
+
+.stat {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.breakdown-row:last-child {
+  border-bottom: none;
+}
+
+.breakdown-row span:first-child {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.breakdown-row span:last-child {
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.chart-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.revenue-chart {
+  width: 100%;
+  height: auto;
+  min-width: 480px;
+}
+
+.chart-bar {
+  fill: var(--primary-light);
+  transition: fill 0.15s ease;
+}
+
+.chart-bar:hover {
+  fill: var(--primary);
+}
+
+.chart-axis-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--text-muted);
+}
+
+.chart-axis-line {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.revenue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.revenue-table th {
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.8rem;
+}
+
+.revenue-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+
+.revenue-table tr:last-child td {
+  border-bottom: none;
+}
+
+.revenue-table a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.revenue-table a:hover {
+  text-decoration: underline;
+}
+
+.revenue-table select,
+.button-row select {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  background: var(--surface);
+  color: var(--text);
+}
