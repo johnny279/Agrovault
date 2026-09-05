@@ -97,6 +97,7 @@ function App() {
           marketplace={marketplace}
           provider={provider}
           account={account}
+          onActionComplete={refresh}
         />
       )}
     </div>

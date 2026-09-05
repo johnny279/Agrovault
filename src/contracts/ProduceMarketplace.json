@@ -2,7 +2,7 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "ProduceMarketplace",
   "sourceName": "contracts/ProduceMarketplace.sol",
-  "abi": [
+ "abi": [
     {
       "inputs": [
         {

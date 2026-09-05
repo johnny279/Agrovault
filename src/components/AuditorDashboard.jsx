@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import DashboardTabs from "./DashboardTabs";
 import HistoryTab from "./HistoryTab";
+import JoinRequestForm from "./JoinRequestForm";
 
-function AuditorDashboard({ cooperative, marketplace, provider, account }) {
+function AuditorDashboard({ cooperative, marketplace, provider, account, onActionComplete }) {
   const [totalLoans, setTotalLoans] = useState(null);
   const [totalBatches, setTotalBatches] = useState(null);
   const [totalAdmins, setTotalAdmins] = useState(null);
@@ -45,14 +46,18 @@ function AuditorDashboard({ cooperative, marketplace, provider, account }) {
       </section>
 
       <section className="card card--full">
-        <h3>About This View</h3>
-        <p className="hint">
-          You're viewing AgroVault as an unregistered visitor. This read-only dashboard
-          reflects general cooperative activity — deposits, loans, and produce sales are
-          independently verifiable on-chain. Contact an admin to be onboarded as a
-          Farmer or Buyer.
-        </p>
-      </section>
+  <h3>Join the Cooperative</h3>
+  <JoinRequestForm cooperative={cooperative} account={account} onActionComplete={onActionComplete} />
+</section>
+
+<section className="card card--full">
+  <h3>About This View</h3>
+  <p className="hint">
+    You're viewing AgroVault as an unregistered visitor. This read-only dashboard
+    reflects general cooperative activity — deposits, loans, and produce sales are
+    independently verifiable on-chain.
+  </p>
+</section>
     </div>
   );
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import DashboardTabs from "./DashboardTabs";
 import HistoryTab from "./HistoryTab";
 import RevenueDashboard from "./revenuedashboard";
+import PendingRequests from "./PendingRequests";
 
 function AdminDashboard({ cooperative, marketplace, provider, account, isSuperAdmin, onActionComplete }) {
   const [farmerAddress, setFarmerAddress] = useState("");
@@ -126,6 +127,10 @@ function AdminDashboard({ cooperative, marketplace, provider, account, isSuperAd
           </button>
         </div>
       </section>
+      <section className="card card--full">
+  <h3>Pending Join Requests</h3>
+  <PendingRequests cooperative={cooperative} onActionComplete={onActionComplete} />
+</section>
 
       {isSuperAdmin && (
         <section className="card card--full">
@@ -177,6 +182,7 @@ function AdminManagement({ cooperative, runAction, busy }) {
   const [removeAddr, setRemoveAddr] = useState("");
   const [transferAddr, setTransferAddr] = useState("");
   const [confirmTransfer, setConfirmTransfer] = useState(false);
+  const [removeMemberAddr, setRemoveMemberAddr] = useState("");
 
   function handleTransferClick() {
     if (!confirmTransfer) {
@@ -224,6 +230,28 @@ function AdminManagement({ cooperative, runAction, busy }) {
           }
         >
           Remove Admin
+        </button>
+      </div>
+            <div className="sub-section">
+        <input
+          type="text"
+          placeholder="Farmer/Buyer address to remove (0x...)"
+          value={removeMemberAddr}
+          onChange={(e) => setRemoveMemberAddr(e.target.value)}
+        />
+        <p className="hint">
+          Member must have a zero balance and no active loan before removal.
+        </p>
+        <button
+          disabled={busy || !removeMemberAddr}
+          onClick={() =>
+            runAction(
+              () => cooperative.removeMember(removeMemberAddr),
+              "Member removed."
+            )
+          }
+        >
+          Remove Member
         </button>
       </div>
 
